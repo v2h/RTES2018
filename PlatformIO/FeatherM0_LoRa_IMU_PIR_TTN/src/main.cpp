@@ -1,16 +1,17 @@
 //#define Serial SerialUSB
 #include <RTCZero.h>
 #include "SparkFunMPU9250-DMP.h"
+
 #define SerialPort Serial
 
 void imuSetup(bool enableInterrupt);
-void alarmMatch(void);
 void printIMUData(void);
 void imuInterruptHandler(void);
 void pirSetup(bool interruptEnable);
 void pirInterruptHandler(void);
-int8_t readPirValue();
-void flashLED(void);
+int8_t readPirValue(void);
+void alarmMatch(void);
+void flashLED(uint8_t ledPin, uint8_t numberOfToggles, uint16_t delayInMs);
 
 struct imuData
 {
@@ -27,14 +28,16 @@ struct imuData
 
 enum 
 {
-  PIR_PIN = 15,
-  IMU_INTERRUPT_PIN = 16, 
-  LED_PIN = 13
+  PIR_PIN           = 15,
+  IMU_INTERRUPT_PIN = 16, //12, 
+  STATUS_LED        = 13,
+
+  PIR_LED    = 17,
+  IMU_LED    = 18
 };
 
 
 static RTCZero rtc;
-//static int AlarmTime;
 
 static MPU9250_DMP imu;
 static struct imuData imuData;
@@ -43,67 +46,37 @@ static bool pirInterruptFlag = false;
 
 void setup() 
 {
+  pinMode(STATUS_LED, OUTPUT);
   SerialPort.begin(115200);
-  imuSetup(false);
-  pirSetup(true);
-  pinMode(LED_PIN, OUTPUT);
-  digitalWrite(LED_PIN, HIGH);
-
+  delay(5000);
   rtc.begin();
+
+  imuSetup(true);
+  //pirSetup(false);
+
+  Serial.end();
+  USBDevice.detach(); // Safely detach the USB prior to sleeping
+  rtc.standbyMode();
 }
 
 void loop()
 {
-  flashLED();
-
-  rtc.attachInterrupt(imuInterruptHandler);
-  Serial.end();
-  USBDevice.detach(); // Safely detach the USB prior to sleeping
-  rtc.standbyMode();
-  USBDevice.attach();   // Re-attach the USB, audible sound on windows machines
-
   if (pirInterruptFlag)
   {
     pirInterruptFlag = false;
-    Serial.println("Interrupted: pir\n");
     imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
-    printIMUData();
+
+    flashLED(STATUS_LED, 6, 100);
   }
 
   //if (imu.dataReady() )
   if (imuInterruptFlag)
   {
     imuInterruptFlag = false; 
-    Serial.println("Interrupted: imu\n");
-    // UPDATE_ACCEL, UPDATE_GYRO, UPDATE_COMPASS, and/or
-    // UPDATE_TEMPERATURE.
-    // (The update function defaults to accel, gyro, compass,
-    //  so you don't have to specify these values.)
     imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
-    printIMUData();
+
+    flashLED(STATUS_LED, 3, 200);
   }
-
-  /*
-  // Simple indication of being awake
-  digitalWrite(LED_PIN, HIGH);   // turn the LED on 
-  delay(1000);              
-  digitalWrite(LED_PIN, LOW);    // turn the LED off
-  delay(1000);
-  digitalWrite(LED_PIN, HIGH);   // turn the LED on 
-  delay(1000);              
-  digitalWrite(LED_PIN, LOW);    // turn the LED off
-
-  delay(1000);  // Delay added to make serial more reliable
-  
-  Serial.begin(9600);
-  while (! Serial); // Wait until Serial is ready
-  Serial.println("Awake");  
-  */
-}
-
-void alarmMatch(void) // Do something when interrupt called
-{
-  
 }
 
 void printIMUData(void)
@@ -158,26 +131,29 @@ void imuSetup(bool enableInterrupt)
   imu.setSampleRate(1); // Set accel/gyro sample rate to 1Hz
   imu.setCompassSampleRate(1); // Set mag rate to 1Hz
 
-  // Use setGyroFSR() and setAccelFSR() to configure the
-  // gyroscope and accelerometer full scale ranges.
+  // Use setGyroFSR() and setAccelFSR() to configure the gyroscope and accelerometer full scale ranges.
   // Gyro options are +/- 250, 500, 1000, or 2000 dps
   imu.setGyroFSR(2000); // Set gyro to 2000 dps
   // Accel options are +/- 2, 4, 8, or 16 g
   imu.setAccelFSR(2); // Set accel to +/-2g
-  // Note: the MPU-9250's magnetometer FSR is set at 
-  // +/- 4912 uT (micro-tesla's)
+  // Note: the MPU-9250's magnetometer FSR is set at +/- 4912 uT (micro-tesla's)
 
-  // setLPF() can be used to set the digital low-pass filter
-  // of the accelerometer and gyroscope.
-  // Can be any of the following: 188, 98, 42, 20, 10, 5
-  // (values are in Hz).
+  // setLPF() can be used to set the digital low-pass filter of the accelerometer and gyroscope.
+  // Can be any of the following: 188, 98, 42, 20, 10, 5 (values are in Hz).
   imu.setLPF(5); // Set LPF corner frequency to 5Hz
 
   if (enableInterrupt)
   {
     // Set interrupt pin with internal pullup (active low)
     pinMode(IMU_INTERRUPT_PIN, INPUT_PULLUP);
-    attachInterrupt(IMU_INTERRUPT_PIN, imuInterruptHandler, FALLING);
+    attachInterrupt(digitalPinToInterrupt(IMU_INTERRUPT_PIN), imuInterruptHandler, FALLING);
+
+    // Configure EIC to use GCLK1 which uses XOSC32K 
+    // This has to be done after the first call to attachInterrupt()
+    GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(GCM_EIC) | GCLK_CLKCTRL_GEN_GCLK2 | GCLK_CLKCTRL_CLKEN;
+    while (GCLK->STATUS.bit.SYNCBUSY);
+    flashLED(STATUS_LED, 5, 300);
+    Serial.println("setup successful");
 
     // interrupt output as a "data ready" indicator.
     imu.enableInterrupt();
@@ -187,8 +163,7 @@ void imuSetup(bool enableInterrupt)
     // Options are INT_ACTIVE_LOW or INT_ACTIVE_HIGH
     imu.setIntLevel(INT_ACTIVE_LOW);
 
-    // The interrupt can be set to latch until data has
-    // been read, or to work as a 50us pulse.
+    // The interrupt can be set to latch until data has been read, or to work as a 50us pulse.
     // Use latching method -- we'll read from the sensor
     // as soon as we see the pin go LOW.
     // Options are INT_LATCHED or INT_50US_PULSE
@@ -204,11 +179,11 @@ void imuInterruptHandler(void)
 // Set up the pir motion sensor
 void pirSetup(bool interruptEnable)
 {
-  // Data pin, the sensor is 1-wire
+  // Data pin, the sensor is 1-wire digital, either HIGH or LOW
   pinMode(PIR_PIN, INPUT);
   if (interruptEnable)
   {
-    attachInterrupt(PIR_PIN, pirInterruptHandler, HIGH);
+    attachInterrupt(PIR_PIN, pirInterruptHandler, HIGH); // trigger interrupt when data pin is HIGH
   }
 }
 
@@ -217,22 +192,19 @@ void pirInterruptHandler(void)
   pirInterruptFlag = true;
 }
 
-void flashLED(void)
+void flashLED(uint8_t ledPin, uint8_t numberOfToggles, uint16_t delayInMs)
 {
-  // Simple indication of being awake
-  digitalWrite(LED_PIN, HIGH);   // turn the LED on 
-  delay(1000);              
-  digitalWrite(LED_PIN, LOW);    // turn the LED off
-  delay(1000);
-  digitalWrite(LED_PIN, HIGH);   // turn the LED on 
-  delay(1000);              
-  digitalWrite(LED_PIN, LOW);    // turn the LED off
-  digitalWrite(LED_PIN, HIGH);   // turn the LED on 
-  delay(1000);              
-  digitalWrite(LED_PIN, LOW);    // turn the LED off
+  for (uint8_t i = 0; i < numberOfToggles; i++)
+  {
+    digitalWrite(ledPin, HIGH);
+    delay(delayInMs);              
+    digitalWrite(ledPin, LOW); 
+    delay(delayInMs);   
+  }
 }
 
-int8_t readPirValue()
+// Read data from the PIR sensor
+int8_t readPirValue(void)
 {
   return digitalRead(PIR_PIN);
 }
