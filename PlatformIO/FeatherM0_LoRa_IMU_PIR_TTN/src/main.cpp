@@ -114,7 +114,6 @@ void loop()
     USBDevice.attach();
     Serial.begin(115200);
     delay(5000);
-    sendJobIsDone = false;
     Serial.println("preparing to send");
 
     do_send(&sendjob);
@@ -134,7 +133,6 @@ void loop()
 }
 
 // Set up the mpu9250 imu sensors
-// including its gyro, accel and compass
 void imuSetup(bool enableInterrupt)
 {
   int8_t imu_status;
@@ -372,6 +370,9 @@ void do_send(osjob_t *j)
   { 
     mydata[0] = pirInterruptFlag ? 1 : 0;
     mydata[1] = imuInterruptFlag ? 1 : 0;
+    pirInterruptFlag = false;
+    imuInterruptFlag = false;
+    
     // Prepare upstream data transmission at the next possible time.
     LMIC_setTxData2(1, mydata, sizeof(mydata), 0);
     Serial.println(F("Packet queued"));
