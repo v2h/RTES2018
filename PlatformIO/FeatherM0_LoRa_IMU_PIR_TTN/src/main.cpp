@@ -1,10 +1,11 @@
 //#define Serial SerialUSB
 #include <RTCZero.h>
-#include "SparkFunMPU9250-DMP.h"
+#include "MPU9250.h"
 
 #define SerialPort Serial
 
 void imuSetup(bool enableInterrupt);
+void setInterruptLevel(bool activeHigh);
 void printIMUData(void);
 void imuInterruptHandler(void);
 void pirSetup(bool interruptEnable);
@@ -33,14 +34,15 @@ enum
   STATUS_LED        = 13,
 
   PIR_LED    = 17,
-  IMU_LED    = 18
+  IMU_LED    = 18,
 };
 
 
 static RTCZero rtc;
 
-static MPU9250_DMP imu;
-static struct imuData imuData;
+static MPU9250 imu(Wire, 0x68);
+static int8_t imu_status;
+
 static bool imuInterruptFlag = false;
 static bool pirInterruptFlag = false;
 
@@ -52,7 +54,7 @@ void setup()
   rtc.begin();
 
   imuSetup(true);
-  //pirSetup(false);
+  pirSetup(true);
 
   Serial.end();
   USBDevice.detach(); // Safely detach the USB prior to sleeping
@@ -64,7 +66,6 @@ void loop()
   if (pirInterruptFlag)
   {
     pirInterruptFlag = false;
-    imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
 
     flashLED(STATUS_LED, 6, 100);
   }
@@ -73,7 +74,6 @@ void loop()
   if (imuInterruptFlag)
   {
     imuInterruptFlag = false; 
-    imu.update(UPDATE_ACCEL | UPDATE_GYRO | UPDATE_COMPASS);
 
     flashLED(STATUS_LED, 3, 200);
   }
@@ -81,69 +81,31 @@ void loop()
 
 void printIMUData(void)
 {  
-  // After calling update() the ax, ay, az, gx, gy, gz, mx,
-  // my, mz, time, and/or temerature class variables are all
-  // updated. Access them by placing the object. in front:
 
-  // Use the calcAccel, calcGyro, and calcMag functions to
-  // convert the raw sensor readings (signed 16-bit values)
-  // to their respective units.
-  imuData.accelX = imu.calcAccel(imu.ax);
-  imuData.accelY = imu.calcAccel(imu.ay);
-  imuData.accelZ = imu.calcAccel(imu.az);
-  imuData.gyroX = imu.calcGyro(imu.gx);
-  imuData.gyroY = imu.calcGyro(imu.gy);
-  imuData.gyroZ = imu.calcGyro(imu.gz);
-  imuData.magX = imu.calcMag(imu.mx);
-  imuData.magY = imu.calcMag(imu.my);
-  imuData.magZ = imu.calcMag(imu.mz);
-  
-  SerialPort.println("Accel: " + String(imuData.accelX) + ", " +
-              String(imuData.accelY) + ", " + String(imuData.accelZ) + " g");
-  SerialPort.println("Gyro: " + String(imuData.gyroX) + ", " +
-              String(imuData.gyroY) + ", " + String(imuData.gyroZ) + " dps");
-  SerialPort.println("Mag: " + String(imuData.magX) + ", " +
-              String(imuData.magY) + ", " + String(imuData.magZ) + " uT");
-  SerialPort.println("Time: " + String(imu.time) + " ms");
-  SerialPort.println();
 }
 
 // Set up the mpu9250 imu sensors
 // including its gyro, accel and compass
 void imuSetup(bool enableInterrupt)
 {
-  if (imu.begin() != INV_SUCCESS)
+  imu_status = imu.begin();
+  if (imu_status < 0) 
   {
-    while (1)
-    {
-      SerialPort.println("Unable to communicate with MPU-9250");
-      SerialPort.println("Check connections, and try again.");
-      SerialPort.println();
-      delay(5000);
-    }
+    Serial.println("IMU initialization unsuccessful");
+    Serial.println("Check IMU wiring or try cycling power");
+    Serial.print("Status: ");
+    Serial.println(imu_status);
+    while(1) {}   
   }
 
-  // Any of the following defines can be combined:
-  // INV_XYZ_GYRO, INV_XYZ_ACCEL, INV_XYZ_COMPASS,
-  // INV_X_GYRO, INV_Y_GYRO, or INV_Z_GYRO
-  // Enable all sensors:
-  imu.setSensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
-  imu.setSampleRate(1); // Set accel/gyro sample rate to 1Hz
-  imu.setCompassSampleRate(1); // Set mag rate to 1Hz
-
-  // Use setGyroFSR() and setAccelFSR() to configure the gyroscope and accelerometer full scale ranges.
-  // Gyro options are +/- 250, 500, 1000, or 2000 dps
-  imu.setGyroFSR(2000); // Set gyro to 2000 dps
-  // Accel options are +/- 2, 4, 8, or 16 g
-  imu.setAccelFSR(2); // Set accel to +/-2g
-  // Note: the MPU-9250's magnetometer FSR is set at +/- 4912 uT (micro-tesla's)
-
-  // setLPF() can be used to set the digital low-pass filter of the accelerometer and gyroscope.
-  // Can be any of the following: 188, 98, 42, 20, 10, 5 (values are in Hz).
-  imu.setLPF(5); // Set LPF corner frequency to 5Hz
-
   if (enableInterrupt)
-  {
+  { 
+    // enabling wake on motion low power mode with a threshold of 400 mg and
+    // an accelerometer data rate of 15.63 Hz. 
+    imu.enableWakeOnMotion(400,MPU9250::LP_ACCEL_ODR_15_63HZ);
+
+    setInterruptLevel(false);
+
     // Set interrupt pin with internal pullup (active low)
     pinMode(IMU_INTERRUPT_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(IMU_INTERRUPT_PIN), imuInterruptHandler, FALLING);
@@ -154,20 +116,6 @@ void imuSetup(bool enableInterrupt)
     while (GCLK->STATUS.bit.SYNCBUSY);
     flashLED(STATUS_LED, 5, 300);
     Serial.println("setup successful");
-
-    // interrupt output as a "data ready" indicator.
-    imu.enableInterrupt();
-
-    // Configure as active-low, since we'll be using the pin's
-    // internal pull-up resistor.
-    // Options are INT_ACTIVE_LOW or INT_ACTIVE_HIGH
-    imu.setIntLevel(INT_ACTIVE_LOW);
-
-    // The interrupt can be set to latch until data has been read, or to work as a 50us pulse.
-    // Use latching method -- we'll read from the sensor
-    // as soon as we see the pin go LOW.
-    // Options are INT_LATCHED or INT_50US_PULSE
-    imu.setIntLatched(INT_LATCHED);
   }
 }
 
@@ -182,8 +130,8 @@ void pirSetup(bool interruptEnable)
   // Data pin, the sensor is 1-wire digital, either HIGH or LOW
   pinMode(PIR_PIN, INPUT);
   if (interruptEnable)
-  {
-    attachInterrupt(PIR_PIN, pirInterruptHandler, HIGH); // trigger interrupt when data pin is HIGH
+  { // trigger interrupt when data pin is HIGH
+    attachInterrupt(digitalPinToInterrupt(PIR_PIN), pirInterruptHandler, HIGH); 
   }
 }
 
@@ -207,4 +155,38 @@ void flashLED(uint8_t ledPin, uint8_t numberOfToggles, uint16_t delayInMs)
 int8_t readPirValue(void)
 {
   return digitalRead(PIR_PIN);
+}
+
+void setInterruptLevel(bool activeHigh)
+{
+  uint8_t buffer;
+  uint8_t devAddress = 0x68; //Default I2C address
+  uint8_t regAddress = 0x37; //INT_PIN_CFG 
+
+  Wire.beginTransmission(devAddress);
+  Wire.write(regAddress);
+  Wire.endTransmission();
+  Wire.requestFrom(devAddress, 1);
+  buffer = Wire.read();
+
+  Wire.beginTransmission(devAddress);
+  Wire.write(regAddress);
+  if (activeHigh)
+  {
+    buffer &= (~(1 << 7));
+    Wire.write(buffer);
+  }
+  else
+  {
+    buffer = buffer | (1 << 7);
+    Wire.write(buffer);
+  }
+  Wire.endTransmission();
+
+  Wire.beginTransmission(devAddress);
+  Wire.write(regAddress);
+  Wire.endTransmission();
+  Wire.requestFrom(devAddress, 1);
+  buffer = Wire.read();
+  Serial.print("buffer: "); Serial.println(buffer, BIN);
 }
