@@ -41,7 +41,6 @@ enum
 static RTCZero rtc;
 
 static MPU9250 imu(Wire, 0x68);
-static int8_t imu_status;
 
 static bool imuInterruptFlag = false;
 static bool pirInterruptFlag = false;
@@ -50,12 +49,14 @@ void setup()
 {
   pinMode(STATUS_LED, OUTPUT);
   SerialPort.begin(115200);
-  delay(5000);
+  delay(100);
   rtc.begin();
 
   imuSetup(true);
   pirSetup(true);
 
+  Serial.println("setup successful");
+  delay(5000);
   Serial.end();
   USBDevice.detach(); // Safely detach the USB prior to sleeping
   rtc.standbyMode();
@@ -70,7 +71,6 @@ void loop()
     flashLED(STATUS_LED, 6, 100);
   }
 
-  //if (imu.dataReady() )
   if (imuInterruptFlag)
   {
     imuInterruptFlag = false; 
@@ -88,6 +88,7 @@ void printIMUData(void)
 // including its gyro, accel and compass
 void imuSetup(bool enableInterrupt)
 {
+  int8_t imu_status;
   imu_status = imu.begin();
   if (imu_status < 0) 
   {
@@ -114,8 +115,8 @@ void imuSetup(bool enableInterrupt)
     // This has to be done after the first call to attachInterrupt()
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(GCM_EIC) | GCLK_CLKCTRL_GEN_GCLK2 | GCLK_CLKCTRL_CLKEN;
     while (GCLK->STATUS.bit.SYNCBUSY);
+
     flashLED(STATUS_LED, 5, 300);
-    Serial.println("setup successful");
   }
 }
 
