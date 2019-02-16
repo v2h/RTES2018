@@ -21,11 +21,8 @@ void onEvent(ev_t ev);
 enum 
 {
   PIR_PIN           = 15,
-  IMU_INTERRUPT_PIN = 16, //12, 
+  IMU_INTERRUPT_PIN = 16,
   STATUS_LED        = 13,
-
-  PIR_LED    = 17,
-  IMU_LED    = 18,
 };
 
 
