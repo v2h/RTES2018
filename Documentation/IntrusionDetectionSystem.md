@@ -4,8 +4,8 @@
 
 ## Introduction
 ### Motivation
-Originally established in the twelfth century as the “Kamp” area and merged with other surrounding areas in 1934 to become “Kamp-Lintfort”, the city currently has a population of more than 37000 [cite]. Compared to the population of other neighboring cities such as Moers (103949) or Wesel (60496), Kamp-Lintfort is a relatively small town. It is, however, has been expanding and modernizing quickly, especially since the opening of the new Hochschule Rhein-Waal campus.
-The development of Kamp-Lintfort together with the on-going academic research projects at Hochschule Rhein-Waal means that it is necessary to consider an intrusion detection mechanism for protecting university and public properties. This could be particularly beneficial for field projects such as the Landesgartenschau project [cite] where a city garden is going to be built resulting in installing and maintaining many electronic devices (for lighting, timely watering, …) on the open field.
+Originally established in the twelfth century as the “Kamp” area and merged with other surrounding areas in 1934 to become “Kamp-Lintfort”, the city currently has a population of more than 37000 (Landesdatenbank NRW 2018). Compared to the population of other neighboring cities such as Moers (103949) or Wesel (60496) (Landesdatenbank NRW 2018), Kamp-Lintfort is a relatively small town. It is, however, has been expanding and modernizing quickly, especially since the opening of the new Hochschule Rhein-Waal campus.
+The development of Kamp-Lintfort together with the on-going academic research projects at Hochschule Rhein-Waal means that it is necessary to consider an intrusion detection mechanism for protecting university and public properties. This could be particularly beneficial for field projects such as the Landesgartenschau project (Kamp-Lintfort Hochschulstadt 2018) where a city garden is going to be built resulting in installing and maintaining many electronic devices (for lighting, timely watering, …) on the open field.
 
 ### Aim
 The project “Intrusion Detection System Using Motion Sensing and LoRaWan” aimed to rapidly develop a proof-of-concept of an intrusion detection system based on different motion-sensing techniques, microcontrollers and on LoRaWAN, an emerging wireless technology. Within the scope of the course “Real-time Embedded Systems”, this proof-of-concept including its related documentation would be used:
@@ -45,25 +45,28 @@ A typical PIR motion sensor board consists of the following main components:
 -	A pyroelectric sensor
 -	An IC for amplification and outputting of the sensed signal
 [Picture]
-PIR stands for passive-infrared. “Passive” means that the pyroelectric sensor does not need current to function. “Infrared” means that the sensor works by detecting heat in the form of infrared radiation which is invisible to the human eye. The human body radiates at a wavelength of about 9.4 micrometers. [http://elte.prompt.hu/sites/default/files/tananyagok/InfraredAstronomy/ch01s04.html] which lies within the infrared range.
-A pyroelectric sensor is made of a crystalline material that produces electric charges when a change in infrared radiation is detected [cite]. This change can be caused by a warm body either approaching the sensor or moving away from the sensor which subsequently caused a charge displacement. This charge displacement can easily be realized into a voltage pulse by use of a gate resistor. A pyroelectric sensor with two sensing elements connected in series with opposite polarities are less susceptible to noise as it produces two opposite pulses when there is a change in infrared radiation.
-[figure of voltage pulses]
+PIR stands for passive-infrared. “Passive” means that the pyroelectric sensor does not need current to function. “Infrared” means that the sensor works by detecting heat in the form of infrared radiation which is invisible to the human eye. The human body radiates at a wavelength of about 9.4 micrometers (L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013) which lies within the infrared range.<br>
+A pyroelectric sensor is made of a crystalline material that produces electric charges when a change in infrared radiation is detected (Glolab Corporation 2015) . This change can be caused by a warm body either approaching the sensor or moving away from the sensor which subsequently caused a charge displacement. This charge displacement can easily be realized into a voltage pulse by use of a gate resistor.<br>
+A pyroelectric sensor with two sensing elements connected in series with opposite polarities are less susceptible to noise as it produces two opposite pulses when there is a change in infrared radiation.
+ 
+Figure 1: Dual-element PIR Sensor Output Signal (Yun & Lee 2014)
 The generated pulses from the PIR sensor is fed into an IC. The IC consists of an amplifier for amplification of the input signal and a comparator to properly produces an output a digital signal whose amplitude lies within a desired range (0 for LOW and 3.3V for HIGH). This output signal from the IC can be fed into a microcontroller. Unlike the PIR sensor which is passive, the IC does consume current as it is an active component.
-[figure] http://www.glolab.com/pirparts/infrared.html
-
-The PIR motion sensor board used in this project includes a BSS0001 PIR motion detector IC. A description of this IC is provided by Adafruit and can be accessed here [http://www.ladyada.net/media/sensors/BISS0001.pdf]. The model of the sensor element is unknown.
+ 
+Figure 2: PIR Sensor Block Diagram (RobotsCraft 2016)
+The PIR motion sensor board used in this project includes a BSS0001 PIR motion detector IC. A description of this IC is provided by Adafruit and can be accessed [here](http://www.ladyada.net/media/sensors/BISS0001.pdf). The model of the sensor element is unknown.
 
 
 #### Motion Sensing Using MEMS-based Accelerometers
-A MEMS (microelectromechanical systems) – based accelerometer is a capacitive-type sensor that consists of two capacitive plates: one plate is fixed onto to a solid plane on a substrate and the other plate is moveable with a known mass (proof mass) that is connected to a spring and can move in response to an applied acceleration [cite analog]. When the movable capacitive plate moves, the capacitance between its fingers and the fixed plate’s fingers is changed and thus an amplifying circuit can be connected to these two plates to realize a voltage.
-[Figure]
-The MPU-9250 board used in this project consists of a gyroscope, an accelerometer and a magnetometer. This project, however, only made used of the MPU-9250’s 3-axis accelerometer [cite datasheet]. As each axis requires one set of capacitive plates, a 3-axis accelerometer must have three sets of capacitive plates and thus can measure acceleration with respect to the three axes. When lying on a flat surface, the accelerometer will measure +1g on the Z-axis and 0g on the other two axes [cite https://www.invensense.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf].
+A MEMS (microelectromechanical systems) – based accelerometer is a capacitive-type sensor that consists of two capacitive plates: one plate is fixed onto to a solid plane on a substrate and the other plate is moveable with a known mass (proof mass) that is connected to a spring and can move in response to an applied acceleration (Excelitas Technologies 2015). When the movable capacitive plate moves, the capacitance between its fingers and the fixed plate’s fingers is changed and thus an amplifying circuit can be connected to these two plates to realize a voltage.
+ 
+Figure 3: MEMS Accelerator Structure (Rob O'Reilly, Alex Khenkin, Kieran Harney 2009)
+The MPU-9250 board used in this project consists of a gyroscope, an accelerometer and a magnetometer. This project, however, only made used of the MPU-9250’s 3-axis accelerometer [cite datasheet]. As each axis requires one set of capacitive plates, a 3-axis accelerometer must have three sets of capacitive plates and thus can measure acceleration with respect to the three axes. When lying on a flat surface, the accelerometer will measure +1g on the Z-axis and 0g on the other two axes (InvenSense Inc 2016).
 The wake-on motion feature of the MPU9250’s accelerometer was used in the project. When enabled, the sensor board will output a signal if an acceleration is applied to the sensor and the measured acceleration value exceeds the pre-configured threshold.
 
 #### LoRaWAN
-LoRaWAN is the data link layer on top of the physical LoRa layer. The RFM96 LoRa module on the Adafruit Feather M0 LoRa board is LoRa-capable; however, to ensure LoRaWAN compliance, additional embedded software components must be written and flashed into the microcontroller that controls the LoRa module. The LoRaWAN specifications ensures that all devices that support LoRaWAN are standardized on the quality of service, security, lifetime and the variety of applications supported. [cite https://lora-alliance.org/sites/default/files/2018-04/what-is-lorawan.pdf]
-Figure [source]
-
+LoRaWAN is the data link layer on top of the physical LoRa layer. The RFM96 LoRa module on the Adafruit Feather M0 LoRa board is LoRa-capable; however, to ensure LoRaWAN compliance, additional embedded software components must be written and flashed into the microcontroller that controls the LoRa module. The LoRaWAN specifications ensures that all devices that support LoRaWAN are standardized on the quality of service, security, lifetime and the variety of applications supported (LoRa Alliance 2015).
+ 
+Figure 4: LoRaWAN Layer (LoRa Alliance 2015)
 ## Methodology
 [Note: this chapter was written as a reusable hands-on tutorial]
 
@@ -241,3 +244,13 @@ Data can be viewed on the TTN `Application Overview` page by clicking on the `Da
 ### Fetching Data from TTN to a PC
 This Python program [link] can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
 
+##References
+Excelitas Technologies 2015, Infrared Sensing Solutions. New, Updated Edition 3.2, Excelitas Technologies. Available from: http://www.excelitas.com/Downloads/CAT_SensorsAndEmittersInfraredSensing.pdf [17 February 2019].
+InvenSense Inc 2016, MPU-9250 Product Specification. Revision 1.1, InvenSense Inc. Available from: https://www.invensense.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf [17 February 2019].
+Kamp-Lintfort Hochschulstadt 2018, KAMP-LINTFORT – STADT DER LANDESGARTENSCHAU 2020, Kamp-Lintfort Hochschulstadt. Available from: https://www.kamp-lintfort.de/c1257621003422e9/files/laga2020_dokumentation_des_wettbewerbs.pdf/$file/laga2020_dokumentation_des_wettbewerbs.pdf?openelement [17 February 2019].
+L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013, Infrared Astronomy, Eötvös Loránd University. Available from: http://elte.prompt.hu/sites/default/files/tananyagok/InfraredAstronomy/ [17 February 2019].
+Landesdatenbank NRW 2018, Bevölkerungsstand Basis Zensus 2011 - Gemeinden - Stichtag, Landesdatenbank NRW. Available from: https://www.landesdatenbank.nrw.de/ldbnrw/online/data;jsessionid=83F19BA3D1A9966574F82915963BC679.ldb1?operation=abruftabelleBearbeiten&levelindex=2&levelid=1550382014540&auswahloperation=abruftabelleAuspraegungAuswaehlen&auswahlverzeichnis=ordnungsstruktur&auswahlziel=werteabruf&selectionname=12410-00ir&auswahltext=&nummer=2&variable=2&name=DLAND&werteabruf=Werteabruf [17 February 2019].
+LoRa Alliance 2015, A technical overview of LoRa and LoRaWAN, LoRa Alliance. Available from: https://lora-alliance.org/sites/default/files/2018-04/what-is-lorawan.pdf [17 February 2019].
+Rob O'Reilly, Alex Khenkin, Kieran Harney 2009, Using MEMS Accelerometers as Acoustic Pickups in Musical Instruments. Available from: https://www.analog.com/en/analog-dialogue/articles/mems-accelerometers-as-acoustic-pickups.html [17 February 2019].
+RobotsCraft 2016, Introduction to PIR Sensor and Integrating It With Arduino. Available from: https://cdn.instructables.com/FO1/75G7/IW6POC25/FO175G7IW6POC25.LARGE.jpg [17 February 2019].
+Yun, J & Lee, S-S 2014, 'Human movement detection and identification using pyroelectric infrared sensors', Sensors (Basel, Switzerland), vol. 14, no. 5, pp. 8057–8081.
