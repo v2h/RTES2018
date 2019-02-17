@@ -56,6 +56,7 @@ Due to the time constraint of the course, the sleep mode for the LoRa radio modu
 |IDE|Integrated Development Environment|
 |IoT| Internet of Things|
 |MEMS|Micro-Electro-Mechanical Systems|
+|PC|Personal Computer|
 |PIR |Passive Infrared Radiation |
 |TTN|The Things Network|
 
