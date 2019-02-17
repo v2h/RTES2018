@@ -382,6 +382,7 @@ Due to the time constraint of the course, however, the following has not been do
 - Configuration of a low-power mode for the LoRa module
 - Measurement of the end node's power consumption
 - Implementation of an actuator to react when a 'motion detected' message is received from the computer or an application server
+- Sending of periodic 'Keep-alive' messages from the sensor node to the TTN server to inform that the sensor node still functions properly
 
 This project was also intended to be reusable as a tutorial, hence the use of Visual Studio with PlatformIO, Github and the documentation. This is to ensure that the not-yet implemented features could be easily integrated into the proof-of-concept in the future.
 
