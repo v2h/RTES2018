@@ -1,4 +1,3 @@
-
 #### Hochschule Rhein-Waal<br>RTES2018
 # Intrusion Detection System Using Motion Sensing and LoRaWAN
 
@@ -28,7 +27,7 @@ This document is divided into four chapters:
 ## System Overview
 | <img src="https://github.com/v2h/RTES2018/blob/master/Figures/embedded_system/system_overview.png" width=100% height=50%>|
 |:--:| 
-| *System Overview*|
+||
 
 As seen in the figure above, the implemented system consists of three components:
 
@@ -44,34 +43,45 @@ Note that what was not covered in this proof-of-concept is the TTN gateway whose
 A typical PIR motion sensor board consists of the following main components:
 -	A pyroelectric sensor
 -	An IC for amplification and outputting of the sensed signal
-[Picture]
+
 PIR stands for passive-infrared. “Passive” means that the pyroelectric sensor does not need current to function. “Infrared” means that the sensor works by detecting heat in the form of infrared radiation which is invisible to the human eye. The human body radiates at a wavelength of about 9.4 micrometers (L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013) which lies within the infrared range.<br>
 A pyroelectric sensor is made of a crystalline material that produces electric charges when a change in infrared radiation is detected (Glolab Corporation 2015) . This change can be caused by a warm body either approaching the sensor or moving away from the sensor which subsequently caused a charge displacement. This charge displacement can easily be realized into a voltage pulse by use of a gate resistor.<br>
 A pyroelectric sensor with two sensing elements connected in series with opposite polarities are less susceptible to noise as it produces two opposite pulses when there is a change in infrared radiation.
- 
-Figure 1: Dual-element PIR Sensor Output Signal (Yun & Lee 2014)
-The generated pulses from the PIR sensor is fed into an IC. The IC consists of an amplifier for amplification of the input signal and a comparator to properly produces an output a digital signal whose amplitude lies within a desired range (0 for LOW and 3.3V for HIGH). This output signal from the IC can be fed into a microcontroller. Unlike the PIR sensor which is passive, the IC does consume current as it is an active component.
- 
-Figure 2: PIR Sensor Block Diagram (RobotsCraft 2016)
-The PIR motion sensor board used in this project includes a BSS0001 PIR motion detector IC. A description of this IC is provided by Adafruit and can be accessed [here](http://www.ladyada.net/media/sensors/BISS0001.pdf). The model of the sensor element is unknown.
 
+| ![PIR Sensor](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/MEMS_accelerator.jpg) | 
+|:--:| 
+| *Dual-element PIR Sensor Output Signal (Yun & Lee 2014)* |
+
+The generated pulses from the PIR sensor is fed into an IC. The IC consists of an amplifier for amplification of the input signal and a comparator to properly produces an output a digital signal whose amplitude lies within a desired range (0 for LOW and 3.3V for HIGH). This output signal from the IC can be fed into a microcontroller. Unlike the PIR sensor which is passive, the IC does consume current as it is an active component.
+| ![PIR Sensor](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/pir_block_diagram.jpg) | 
+|:--:| 
+| *PIR Sensor Block Diagram (RobotsCraft 2016)* |
+
+The PIR motion sensor board used in this project includes a BSS0001 PIR motion detector IC. A description of this IC is provided by Adafruit and can be accessed [here](http://www.ladyada.net/media/sensors/BISS0001.pdf). The model of the sensor element is unknown.
 
 #### Motion Sensing Using MEMS-based Accelerometers
 A MEMS (microelectromechanical systems) – based accelerometer is a capacitive-type sensor that consists of two capacitive plates: one plate is fixed onto to a solid plane on a substrate and the other plate is moveable with a known mass (proof mass) that is connected to a spring and can move in response to an applied acceleration (Excelitas Technologies 2015). When the movable capacitive plate moves, the capacitance between its fingers and the fixed plate’s fingers is changed and thus an amplifying circuit can be connected to these two plates to realize a voltage.
- 
-Figure 3: MEMS Accelerator Structure (Rob O'Reilly, Alex Khenkin, Kieran Harney 2009)
-The MPU-9250 board used in this project consists of a gyroscope, an accelerometer and a magnetometer. This project, however, only made used of the MPU-9250’s 3-axis accelerometer [cite datasheet]. As each axis requires one set of capacitive plates, a 3-axis accelerometer must have three sets of capacitive plates and thus can measure acceleration with respect to the three axes. When lying on a flat surface, the accelerometer will measure +1g on the Z-axis and 0g on the other two axes (InvenSense Inc 2016).
+|![MEMS accelerator](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/MEMS_accelerator.jpg)|
+|:--:|
+|MEMS Accelerator Structure (Rob O'Reilly, Alex Khenkin, Kieran Harney 2009)| 
+
+The MPU-9250 board used in this project consists of a gyroscope, an accelerometer and a magnetometer. This project, however, only made used of the MPU-9250’s 3-axis accelerometer. As each axis requires one set of capacitive plates, a 3-axis accelerometer must have three sets of capacitive plates and thus can measure acceleration with respect to the three axes. When lying on a flat surface, the accelerometer will measure +1g on the Z-axis and 0g on the other two axes (InvenSense Inc 2016).
 The wake-on motion feature of the MPU9250’s accelerometer was used in the project. When enabled, the sensor board will output a signal if an acceleration is applied to the sensor and the measured acceleration value exceeds the pre-configured threshold.
 
 #### LoRaWAN
-LoRaWAN is the data link layer on top of the physical LoRa layer. The RFM96 LoRa module on the Adafruit Feather M0 LoRa board is LoRa-capable; however, to ensure LoRaWAN compliance, additional embedded software components must be written and flashed into the microcontroller that controls the LoRa module. The LoRaWAN specifications ensures that all devices that support LoRaWAN are standardized on the quality of service, security, lifetime and the variety of applications supported (LoRa Alliance 2015).
+LoRaWAN is the data link layer on top of the physical LoRa layer. The RFM96 LoRa module on the Adafruit Feather M0 LoRa board is LoRa-capable; however, to ensure LoRaWAN compliance, additional embedded software components must be written and flashed into the microcontroller that controls the LoRa module. The LoRaWAN specifications ensures that all devices that support LoRaWAN are standardized on the quality of service, security, lifetime and the variety of applications supported (LoRa Alliance 2015). The physical layer, LoRa, is based on the chirp spread spectrum (CSS) modulation technique and the name "LoRa" is a trademark of Semtech Corporation.
+
+LoRa and LoRaWAN are suitable for IoT applications where low-power consumption and long-range transmission (up to 20 km) are concerned (Mekki et al. 2018). On the other hand, the LoRaWAN specification does not allow for high-speed data rates, which is not a concern within the scope of this project.
  
-Figure 4: LoRaWAN Layer (LoRa Alliance 2015)
+ |![LoRa and LoRaWAN](https://github.com/v2h/RTES2018/blob/master/Figures/ttn_setup/lora_lora_wan_layers.jpg)|
+ |:--:|
+ |*LoRa and LoRaWAN Layer (LoRa Alliance 2015)*|
 ## Methodology
 [Note: this chapter was written as a reusable hands-on tutorial]
 
 ### Developement Environment Setup
 For this project, Visual Studio Code with the extension PlatformIO was used as the development environment.
+
 Visual Studio Code is a cross-platform Electron-based source code editor released by Microsoft that provides built-in IntelliSense code completion which could greatly improve the development process compared to more simple development environments such as the Arduino IDE. Visual Studio Code also supports debugging, but this funcitonality was not used within the scope of this project.
 
 PlatformIO is an extension for Visual Studio Code that is capable of building code and managing libraries for various hardware platforms including Arduino-compatible microcontroller devices. More information on PlatformIO can be found [here](https://docs.platformio.org/en/latest/what-is-platformio.html).
@@ -87,7 +97,6 @@ If `C/C++ IntelliSense` does not show up in the list of Installled Extensions, s
 [figure]
 Type `PlatformIO` in the Extension Search Bar to search for PlatformIO and install the extension.
 ### TTN Application Setup
-The procedure for setting up a TTN application is provided here [link]. This was compiled by the same author who compiled this document and is adapted below to fit the structure of this document. [cite]
 
 #### Setting up a new TTN Application
 
@@ -140,7 +149,7 @@ On the `Device EUI` section, click the `generate` button to automatically genera
 ### Hardware Setup
 The following pieces of hardware were used in this project:
 
-- An Adafruit Feather M0 LoRa 900Mhz board which includes an ATSAMD21G18 ARM Cortex M0 processor and an RFM95 LoRa module. [cite].
+- An Adafruit Feather M0 LoRa 900Mhz board which includes an ATSAMD21G18 ARM Cortex M0 processor and an RFM95 LoRa module. A more detailed description of the board is provided by Adafruit on [the board's product page](https://www.adafruit.com/product/3178).
 - An MPU-9250 sensor board from Grove [link], of which only the 3-axis accelerometer was used (for acceleration-based motion detection). This sensor board communicates with the Feather M0 board via I2C.
 - An PIR sensor board from Grove [link]. This sensor board transmits its digital signal to a GPIO pin of the Feather M0 board.
 
@@ -242,15 +251,13 @@ Data can be viewed on the TTN `Application Overview` page by clicking on the `Da
 [figure]
 
 ### Fetching Data from TTN to a PC
-This Python program [link] can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
+[This Python program](https://github.com/v2h/RTES2018/blob/master/Python/MQTT_TTN.py)  can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
 
-##References
-Excelitas Technologies 2015, Infrared Sensing Solutions. New, Updated Edition 3.2, Excelitas Technologies. Available from: http://www.excelitas.com/Downloads/CAT_SensorsAndEmittersInfraredSensing.pdf [17 February 2019].
-InvenSense Inc 2016, MPU-9250 Product Specification. Revision 1.1, InvenSense Inc. Available from: https://www.invensense.com/wp-content/uploads/2015/02/PS-MPU-9250A-01-v1.1.pdf [17 February 2019].
-Kamp-Lintfort Hochschulstadt 2018, KAMP-LINTFORT – STADT DER LANDESGARTENSCHAU 2020, Kamp-Lintfort Hochschulstadt. Available from: https://www.kamp-lintfort.de/c1257621003422e9/files/laga2020_dokumentation_des_wettbewerbs.pdf/$file/laga2020_dokumentation_des_wettbewerbs.pdf?openelement [17 February 2019].
+## References
 L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013, Infrared Astronomy, Eötvös Loránd University. Available from: http://elte.prompt.hu/sites/default/files/tananyagok/InfraredAstronomy/ [17 February 2019].
 Landesdatenbank NRW 2018, Bevölkerungsstand Basis Zensus 2011 - Gemeinden - Stichtag, Landesdatenbank NRW. Available from: https://www.landesdatenbank.nrw.de/ldbnrw/online/data;jsessionid=83F19BA3D1A9966574F82915963BC679.ldb1?operation=abruftabelleBearbeiten&levelindex=2&levelid=1550382014540&auswahloperation=abruftabelleAuspraegungAuswaehlen&auswahlverzeichnis=ordnungsstruktur&auswahlziel=werteabruf&selectionname=12410-00ir&auswahltext=&nummer=2&variable=2&name=DLAND&werteabruf=Werteabruf [17 February 2019].
 LoRa Alliance 2015, A technical overview of LoRa and LoRaWAN, LoRa Alliance. Available from: https://lora-alliance.org/sites/default/files/2018-04/what-is-lorawan.pdf [17 February 2019].
+Mekki, K, Bajic, E, Chaxel, F & Meyer, F 2018, 'A comparative study of LPWAN technologies for large-scale IoT deployment', ICT Express.
 Rob O'Reilly, Alex Khenkin, Kieran Harney 2009, Using MEMS Accelerometers as Acoustic Pickups in Musical Instruments. Available from: https://www.analog.com/en/analog-dialogue/articles/mems-accelerometers-as-acoustic-pickups.html [17 February 2019].
 RobotsCraft 2016, Introduction to PIR Sensor and Integrating It With Arduino. Available from: https://cdn.instructables.com/FO1/75G7/IW6POC25/FO175G7IW6POC25.LARGE.jpg [17 February 2019].
 Yun, J & Lee, S-S 2014, 'Human movement detection and identification using pyroelectric infrared sensors', Sensors (Basel, Switzerland), vol. 14, no. 5, pp. 8057–8081.
