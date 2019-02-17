@@ -77,7 +77,7 @@ The wake-on motion feature of the MPU9250’s accelerometer was used in the proj
 #### LoRaWAN
 LoRaWAN is the data link layer on top of the physical LoRa layer. The RFM96 LoRa module on the Adafruit Feather M0 LoRa board is LoRa-capable; however, to ensure LoRaWAN compliance, additional embedded software components must be written and flashed into the microcontroller that controls the LoRa module. The LoRaWAN specifications ensures that all devices that support LoRaWAN are standardized on the quality of service, security, lifetime and the variety of applications supported (LoRa Alliance 2015). The physical layer, LoRa, is based on the chirp spread spectrum (CSS) modulation technique and the name "LoRa" is a trademark of Semtech Corporation.
 
-LoRa and LoRaWAN are suitable for IoT applications where low-power consumption and long-range transmission (up to 20 km) are concerned (Mekki et al. 2018). On the other hand, the LoRaWAN specification does not allow for high-speed data rates, which is not a concern within the scope of this project.
+LoRa and LoRaWAN are suitable for IoT applications where low-power consumption and long-range transmission (up to 20 km) are concerned (Mekki et al. 2018). On the other hand, the LoRaWAN specification does not allow for high-volumn data transmission, which is not a concern within the scope of this project.
  
  |![LoRa and LoRaWAN](https://github.com/v2h/RTES2018/blob/master/Figures/ttn_setup/lora_lora_wan_layers.jpg)|
  |:--:|
@@ -253,12 +253,27 @@ To reduce power consumption, all peripherals should be put into low-power mode w
 - The MPU-9250's interrupt pin turns active (LOW) whenever a motion exceeds the predefined acceleration threshold in any direction, causing the microcontroller to wake up via the configured GPIO edge-triggered interrupt.
 If motion is detected by either sensor, the microcontroller board will transmit a packet to the TTN cloud service.
 
+## Results
+
 #### Viewing Transmited Data on the TTN Console
-Data can be viewed on the TTN `Application Overview` page by clicking on the `Data` tab. The custom-payload encoder in section [link] ensures that the data is displayed correctly. A value of `1` from any sensor means that motion is detected.
-[figure]
+Data can be viewed on the TTN `Application Overview` page by clicking on the `Data` tab. The custom-payload encoder ensures that the data is displayed correctly. A value of `1` from any sensor means that motion is detected.
+
+![data view](https://github.com/v2h/RTES2018/blob/master/Figures/view_data/device_data_ttn.jpg)
+
+Note that the OTTA authentication via sending a Join Request only occurred once at the beginning. After the being joined into the TTN application, the end node was able to transmitting data without having to re-join.
 
 ### Fetching Data from TTN to a PC
-[This Python program](https://github.com/v2h/RTES2018/blob/master/Python/MQTT_TTN.py)  can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
+[A Python program was written](https://github.com/v2h/RTES2018/blob/master/Python/MQTT_TTN.py) and can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. 
+
+|<img src="https://github.com/v2h/RTES2018/blob/master/Figures/view_data/json_data.jpg">|
+|:--:|
+
+Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
+
+
+## Discussion
+
+
 
 ## References
 
