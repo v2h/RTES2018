@@ -47,7 +47,6 @@ static const u1_t PROGMEM APPKEY[16] = { 0x6E, 0xC7, 0xAC, 0xF1, 0x94, 0x01, 0x1
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static osjob_t sendjob;
-const unsigned TX_INTERVAL = 60;
 
 // Pin mapping for Adafruit Feather M0 LoRa
 const lmic_pinmap lmic_pins = {
@@ -56,7 +55,7 @@ const lmic_pinmap lmic_pins = {
     .rst = 4,
     .dio = {3, 6, LMIC_UNUSED_PIN},
     .rxtx_rx_active = 0,
-    .rssi_cal = 8,              // LBT cal for the Adafruit Feather M0 LoRa, in dB
+    .rssi_cal = 8,
     .spi_freq = 8000000,
 };
 
@@ -99,12 +98,10 @@ void loop()
   {
     if (pirInterruptFlag)
     {
-      //pirInterruptFlag = false;
       flashLED(STATUS_LED, 6, 100);
     }
     else if (imuInterruptFlag)
     {
-      //imuInterruptFlag = false;
       flashLED(STATUS_LED, 3, 200);
     }    
     
@@ -129,7 +126,7 @@ void loop()
   }
 }
 
-// Set up the mpu9250 imu sensors
+// Set up the mpu9250 imu sensor
 void imuSetup(bool enableInterrupt)
 {
   int8_t imu_status;
@@ -149,18 +146,16 @@ void imuSetup(bool enableInterrupt)
     // an accelerometer data rate of 15.63 Hz. 
     imu.enableWakeOnMotion(400,MPU9250::LP_ACCEL_ODR_15_63HZ);
 
-    imu_setInterruptLevel(false);
+    imu_setInterruptLevel(false); // Active low
 
     // Set interrupt pin with internal pullup (active low)
     pinMode(IMU_INTERRUPT_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(IMU_INTERRUPT_PIN), imuInterruptHandler, FALLING);
 
-    // Configure EIC to use GCLK1 which uses XOSC32K 
+    // Configure EIC to use GCLK2 which uses XOSC32K, to enable edge-triggered interrupt
     // This has to be done after the first call to attachInterrupt()
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(GCM_EIC) | GCLK_CLKCTRL_GEN_GCLK2 | GCLK_CLKCTRL_CLKEN;
     while (GCLK->STATUS.bit.SYNCBUSY);
-
-    flashLED(STATUS_LED, 5, 300);
   }
 }
 
@@ -316,8 +311,6 @@ void onEvent(ev_t ev)
       Serial.println(LMIC.dataLen);
       Serial.println(F(" bytes of payload"));
     }
-    // Schedule next transmission
-    //os_setCallback(&sendjob, do_send);
     sendJobIsDone = true;
     break;
   case EV_LOST_TSYNC:
