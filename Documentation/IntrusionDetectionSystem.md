@@ -3,9 +3,30 @@
 #### Hochschule Rhein-Waal<br>RTES2018
 # Intrusion Detection System Using Motion Sensing and LoRaWAN
 
+## Abstract
+The city of Kamp-Lintfort has been expanding and developing rapidly since the opening of the Hochschule Rhein-Waal's new campus at the city center in 2014. This results in more state-funded and academic research projects to be carried out in the near future, some of which involves the installation and maintenance of equipment and devices on remote and open fields. Therefore, it is the goal of this proof-of-concept project to rapidly develop an intrusion detection system for remote monitoring of large field areas and preventing vandalism and to be used as a reusable tutorial for learning and further research.
+
+This proof-of-concept was carried out by using off-the-shelf sensor boards that are capable of detecting motion based on infrared radiation and acceleration. An embedded software was written to build an interrupt-driven embedded system that capable of reliably reading sensor data and transmitting data using LoRaWAN to the TTN cloud service. The TTN service was configured to properly authenticate the sensor node and decode the data. Furthermore, a Python application was written to fetch data from the TTN service to a local computer.
+
+All components of the proof-of-concept system was tested to function properly. The sensor boards and microcontroller was able to switch go into low-power mode to reduce power consumption while motion detection events could still trigger interrupts. The TTN cloud service was configured to properly receive and display data using a custom payload decoder. The Python application deployed on a local computer was able to fetch data from the TTN server and store the data as JSON strings.
+
+Due to the time constraint of the course, the sleep mode for the LoRa radio module on the microcontroller board could not be implemented, and measurement of power consumption of the system was not carried out. This should be implemented in the future to improve this proof-of-concept by reusing the written code base and documentation available on this project's [Github page](https://github.com/v2h/RTES2018/).
+
+## Abbreviations
+|  |  |
+|--|--|
+|IC|Integrated Circuit|
+|IDE|Integrated Development Environment|
+|IoT| Internet of Things|
+|MEMS|Micro-Electro-Mechanical Systems|
+|PIR |Passive Infrared Radiation |
+|TTN|The Things Network|
+
+
 ## Introduction
 ### Motivation
 Originally established in the twelfth century as the “Kamp” area and merged with other surrounding areas in 1934 to become “Kamp-Lintfort”, the city currently has a population of more than 37000 (Landesdatenbank NRW 2018). Compared to the population of other neighboring cities such as Moers (103949) or Wesel (60496) (Landesdatenbank NRW 2018), Kamp-Lintfort is a relatively small town. It is, however, has been expanding and modernizing quickly, especially since the opening of the new Hochschule Rhein-Waal campus.
+
 The development of Kamp-Lintfort together with the on-going academic research projects at Hochschule Rhein-Waal means that it is necessary to consider an intrusion detection mechanism for protecting university and public properties. This could be particularly beneficial for field projects such as the Landesgartenschau project (Kamp-Lintfort Hochschulstadt 2018) where a city garden is going to be built resulting in installing and maintaining many electronic devices (for lighting, timely watering, …) on the open field.
 
 ### Aim
@@ -23,21 +44,20 @@ This document is divided into four chapters:
 -	Chapter 1 provides a background on the project, states the aim and motivation of the project.
 -	Chapter 2 provides an overview of the embedded system implemented in the project
 -	Chapter 3 provides a review on the technologies used in the project including the motion sensors, the microcontroller and LoRaWAN.
--	Chapter 4 discusses the work carried out in the project including the setup of the development environment, TheThingsNetwork cloud service, the communication between the sensors and the controller as well as the operating cycle of the implemented embedded system.
+-	Chapter 4 discusses the work carried out in the project including the setup of the development environment, the TTN cloud service, the communication between the sensors and the controller as well as the operating cycle of the implemented embedded system.
 -	Chapter 5 discusses the results of the implementation and possible future works that could help improve this proof-of-concept.
 
 ## System Overview
 | <img src="https://github.com/v2h/RTES2018/blob/master/Figures/embedded_system/system_overview.png" width=100% height=50%>|
-|:--:| 
-||
+|:--:|
 
 As seen in the figure above, the implemented system consists of three components:
 
-- The sensor node: this includes the motion sensor boards and microcontroller board with LoRa module for detecting motion at a desired area and transmitting the signal to TheThingsNetwork cloud service.
-- TheThingsNetwork cloud service: receives and stores data from the sensor node, provides a control dashboard for the configuration of devices and also options for connecting to a user application server.
-- The Python application: uses TheThingsNetwork API to fetch data from the cloud service to a local computer.
+- The sensor node (or end node): this includes the motion sensor boards and microcontroller board with LoRa module for detecting motion at a desired area and transmitting the signal to the TTN cloud service.
+- The TTN cloud service: receives and stores data from the sensor node, provides a control dashboard for the configuration of devices and also options for connecting to a user application server.
+- The Python application: uses the TTN API to fetch data from the cloud service to a local computer.
 
-Note that what was not covered in this proof-of-concept is the TTN gateway whose job is to forward data from the sensor nodes to TheThingsNetwork cloud service.
+Note that what was not covered in this proof-of-concept is the TTN gateway whose job is to forward data from the sensor nodes to the TTN cloud service.
 
 ## Technology Review
 ### Motion Sensing
@@ -56,7 +76,7 @@ A pyroelectric sensor with two sensing elements connected in series with opposit
 |:--:| 
 | *Dual-element PIR Sensor Output Signal (Yun & Lee 2014)* |
 
-The generated pulses from the PIR sensor is fed into an IC. The IC consists of an amplifier for amplification of the input signal and a comparator to properly produces an output a digital signal whose amplitude lies within a desired range (0 for LOW and 3.3V for HIGH). This output signal from the IC can be fed into a microcontroller. Unlike the PIR sensor which is passive, the IC does consume current as it is an active component.
+The generated pulses from the PIR sensor is fed into an IC. The IC consists of an amplifier for amplification of the input signal and a comparator to properly produces an output a digital signal whose amplitude lies within a desired range (i.e. 0 for LOW and 3.3V for HIGH). This output signal from the IC can be fed into a microcontroller. Unlike the PIR sensor which is passive, the IC does consume current as it is an active component.
 
 |![PIR Sensor](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/pir_block_diagram.jpg) | 
 |:--:| 
@@ -65,7 +85,7 @@ The generated pulses from the PIR sensor is fed into an IC. The IC consists of a
 The PIR motion sensor board used in this project includes a BSS0001 PIR motion detector IC. A description of this IC is provided by Adafruit and can be accessed [here](http://www.ladyada.net/media/sensors/BISS0001.pdf). The model of the sensor element is unknown.
 
 #### Motion Sensing Using MEMS-based Accelerometers
-A MEMS (microelectromechanical systems) – based accelerometer is a capacitive-type sensor that consists of two capacitive plates: one plate is fixed onto to a solid plane on a substrate and the other plate is moveable with a known mass (proof mass) that is connected to a spring and can move in response to an applied acceleration (Excelitas Technologies 2015). When the movable capacitive plate moves, the capacitance between its fingers and the fixed plate’s fingers is changed and thus an amplifying circuit can be connected to these two plates to realize a voltage.
+A MEMS–based accelerometer is a capacitive-type sensor that consists of two capacitive plates: one plate is fixed onto to a solid plane on a substrate and the other plate is moveable with a known mass (proof mass) that is connected to a spring and can move in response to an applied acceleration (Excelitas Technologies 2015). When the movable capacitive plate moves, the capacitance between its fingers and the fixed plate’s fingers is changed and thus an amplifying circuit can be connected to these two plates to realize a voltage.
 
 |![MEMS accelerator](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/MEMS_accelerator.jpg)|
 |:--:|
@@ -77,7 +97,7 @@ The wake-on motion feature of the MPU9250’s accelerometer was used in the proj
 #### LoRaWAN
 LoRaWAN is the data link layer on top of the physical LoRa layer. The RFM96 LoRa module on the Adafruit Feather M0 LoRa board is LoRa-capable; however, to ensure LoRaWAN compliance, additional embedded software components must be written and flashed into the microcontroller that controls the LoRa module. The LoRaWAN specifications ensures that all devices that support LoRaWAN are standardized on the quality of service, security, lifetime and the variety of applications supported (LoRa Alliance 2015). The physical layer, LoRa, is based on the chirp spread spectrum (CSS) modulation technique and the name "LoRa" is a trademark of Semtech Corporation.
 
-LoRa and LoRaWAN are suitable for IoT applications where low-power consumption and long-range transmission (up to 20 km) are concerned (Mekki et al. 2018). On the other hand, the LoRaWAN specification does not allow for high-volumn data transmission, which is not a concern within the scope of this project.
+LoRa and LoRaWAN are suitable for IoT applications where low-power consumption and long-range transmission (up to 20 km) are concerned (Mekki et al. 2018). On the other hand, the LoRaWAN specification does not allow for high-volume data transmission, which is not a concern within the scope of this project.
  
  |![LoRa and LoRaWAN](https://github.com/v2h/RTES2018/blob/master/Figures/ttn_setup/lora_lora_wan_layers.jpg)|
  |:--:|
@@ -85,10 +105,10 @@ LoRa and LoRaWAN are suitable for IoT applications where low-power consumption a
 ## Methodology
 [Note: this chapter was written as a reusable hands-on tutorial]
 
-### Developement Environment Setup
+### Development Environment Setup
 For this project, Visual Studio Code with the extension PlatformIO was used as the development environment.
 
-Visual Studio Code is a cross-platform Electron-based source code editor released by Microsoft that provides built-in IntelliSense code completion which could greatly improve the development process compared to more simple development environments such as the Arduino IDE. Visual Studio Code also supports debugging, but this funcitonality was not used within the scope of this project.
+Visual Studio Code is a cross-platform Electron-based source code editor released by Microsoft that provides built-in IntelliSense code completion which could greatly improve the development process compared to more simple development environments such as the Arduino IDE. Visual Studio Code also supports debugging, but this functionality was not used within the scope of this project.
 
 PlatformIO is an extension for Visual Studio Code that is capable of building code and managing libraries for various hardware platforms including Arduino-compatible microcontroller devices. More information on PlatformIO can be found [here](https://docs.platformio.org/en/latest/what-is-platformio.html).
 
@@ -99,7 +119,7 @@ The `Extensions` panel can be viewed by clicking on the *Extension button* on th
 [figure]
 More options can be displayed by clicking on the `...` button at the top of the `Extension` panel.
 [figure]
-If `C/C++ IntelliSense` does not show up in the list of Installled Extensions, search for it by typing `C/C++ IntelliSense` in the Extension Search Bar and install it.
+If `C/C++ IntelliSense` does not show up in the list of Installed Extensions, search for it by typing `C/C++ IntelliSense` in the Extension Search Bar and install it.
 [figure]
 Type `PlatformIO` in the Extension Search Bar to search for PlatformIO and install the extension.
 ### TTN Application Setup
@@ -141,7 +161,7 @@ Type `PlatformIO` in the Extension Search Bar to search for PlatformIO and insta
 	![payload formats](https://github.com/v2h/RTES2018/blob/master/Figures/ttn_setup/ttn_payload_formats.jpg)
 
 #### Registering a Device
-- From the the `Application Overview` page, click on the `Devices` tab.
+- From the `Application Overview` page, click on the `Devices` tab.
 Click on the `register device` button.
 ![register device](https://github.com/v2h/RTES2018/blob/master/Figures/ttn_setup/ttn_register_devices.jpg)
 
@@ -156,8 +176,8 @@ On the `Device EUI` section, click the `generate` button to automatically genera
 The following pieces of hardware were used in this project:
 
 - An Adafruit Feather M0 LoRa 900Mhz board which includes an ATSAMD21G18 ARM Cortex M0 processor and an RFM95 LoRa module. A more detailed description of the board is provided by Adafruit on [the board's product page](https://www.adafruit.com/product/3178).
-- An MPU-9250 sensor board from Grove [link], of which only the 3-axis accelerometer was used (for acceleration-based motion detection). This sensor board communicates with the Feather M0 board via I2C.
-- An PIR sensor board from Grove [link]. This sensor board transmits its digital signal to a GPIO pin of the Feather M0 board.
+- [An MPU-9250 sensor board from Grove](http://wiki.seeedstudio.com/Grove-IMU_10DOF/), of which only the 3-axis accelerometer was used (for acceleration-based motion detection). This sensor board communicates with the Feather M0 board via I2C.
+- [An PIR sensor board from Grove](http://wiki.seeedstudio.com/Grove-PIR_Motion_Sensor/). This sensor board transmits its digital signal to a GPIO pin of the Feather M0 board.
 
 The wiring of the above components must be done according to the figure below.
 ![wiring](https://github.com/v2h/RTES2018/blob/master/Figures/embedded_system/sensors_featherM0_connections.png)
@@ -169,7 +189,7 @@ Note that:
 
 ### Loading the Sensor Node's Embedded Software
 
- - Download or clone the whole project repository [here](https://github.com/v2h/RTES2018).
+ - **Download or clone the whole project repository [here](https://github.com/v2h/RTES2018).**
  - In Visual Studio Code, Click on the PlatformIO icon on the left sidebar to bring up the PlatformIO homepage. [figure]
  -  Within the PlatformIO homepage, click `Open Project` to load a the project into Visual Studio Code.
  - Navigate to `.../PlatformIO/FeatherMO_LoRa_IMU_PIR_TTN` and click `Open "FeatherM0_LoRa_IMU_PIR_TTN` to load the project
@@ -245,35 +265,64 @@ To reduce power consumption, all peripherals should be put into low-power mode w
 
 - The microcontroller is put to sleep by calling `rtc.standbyMode()`.
 - The PIR motion sensor is a passive device which consumes very little current by design.
-- The MPU-9250 is already put in low-power mode (and its wake-on-motion interrupt is enabled) by calling `imu.enableWakeOnMotion()` from the intialization phase.
+- The MPU-9250 is already put in low-power mode (and its wake-on-motion interrupt is enabled) by calling `imu.enableWakeOnMotion()` from the initialization phase.
 - The low-power mode for the LoRa module has not been implemented in this project due to the limited amount of time.
 
 #### Motion Detection and Data Transmission
 - The PIR motion sensor sends a logic HIGH signal to PIN 16 of the microcontroller when motion is detected, causing the microcontroller to wake up via the configured GPIO level interrupt.
 - The MPU-9250's interrupt pin turns active (LOW) whenever a motion exceeds the predefined acceleration threshold in any direction, causing the microcontroller to wake up via the configured GPIO edge-triggered interrupt.
-If motion is detected by either sensor, the microcontroller board will transmit a packet to the TTN cloud service.
+If motion is detected by either sensor, the microcontroller board will transmit a packet to the TTN cloud service by calling the `do_send()` function.
 
-## Results
+### Flashing the Embedded Software
+The embedded software can be uploaded by:
+
+- clicking the `PlatformIO:Upload` button at the bottom bar of the Visual Studio Code IDE, or 
+- by pressing `F1` and typing `PlatformIO:Upload`.
+|![upload](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/upload.png)|
+|:--:|
+
+In the same manner, the Serial Monitor can be viewed by click the `PlatformIO:SerialMonitor` button at the bottom bar of the Visual Studio Code IDE or by pressing `F1` and typing `PlatformIO:SerialMonitor`.
+
+Note that:
+ 
+ - If the code cannot be uploaded, the reset button has to be quickly double-pressed (the status LED will keep glowing) and then the `PlatformIO:Upload` can be used to flash the code into the microcontroller.
+ - The USB connection from the microcontroller board to the computer is disconnected when the system switch to low-power mode.
+
+
+## Results and Discussion
+#### Simulating Motion for Testing
+- Waving of hand over the sensor was enough to trigger detection from the PIR sensor. Note that the PIR sensor worked more reliably when the surrounding environment was dark.
+- A rapid force applied in any direction could be enough to trigger a detection from the MPU-9250.
 
 #### Viewing Transmited Data on the TTN Console
-Data can be viewed on the TTN `Application Overview` page by clicking on the `Data` tab. The custom-payload encoder ensures that the data is displayed correctly. A value of `1` from any sensor means that motion is detected.
+Data can be viewed on the TTN `Application Overview` page by clicking on the `Data` tab. 
+The payload contains only two bytes: one PIR motion detection and one for acceleration-based motion detection. The custom-payload encoder ensures that the data is displayed correctly. A value of `1` from any sensor means that motion is detected. 
 
 ![data view](https://github.com/v2h/RTES2018/blob/master/Figures/view_data/device_data_ttn.jpg)
-
 Note that the OTTA authentication via sending a Join Request only occurred once at the beginning. After the being joined into the TTN application, the end node was able to transmitting data without having to re-join.
 
 ### Fetching Data from TTN to a PC
-[A Python program was written](https://github.com/v2h/RTES2018/blob/master/Python/MQTT_TTN.py) and can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. 
+[A Python program was written](https://github.com/v2h/RTES2018/blob/master/Python/MQTT_TTN.py) and can be run to fetch uplink messages transmitted from the sensor node to the TTN server and wrangle the data to get the payload as a JSON string. Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
 
 |<img src="https://github.com/v2h/RTES2018/blob/master/Figures/view_data/json_data.jpg">|
 |:--:|
 
-Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
+## Conclusion and Outlook
+The proof-of-concept "# Intrusion Detection System Using Motion Sensing and LoRaWAN" was rapidly developed and was able to contain the following features:
 
+- Infrared-radiation and acceleration-based motion detection
+- Interrupt-driven embedded system for the end node
+- Low-power modes for the sensor boards and the microcontroller
+- LoRaWAN-base transmission of data to the TTN cloud service
+- Retrieval of data to a computer
 
-## Discussion
+Due to the time constraint of the course, however, the following has not been done:
 
+- Configuration of a low-power mode for the LoRa module
+- Measurement of the end node's power consumption
+- Implementation of an actuator to react when a 'motion detected' message is received from the computer or an application server
 
+This project was also intended to be reusable as a tutorial, hence the use of Visual Studio with PlatformIO, Github and the documentation. This is to ensure that the not-yet implemented features could be easily integrated into the proof-of-concept in the future.
 
 ## References
 
