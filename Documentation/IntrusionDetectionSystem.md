@@ -1,3 +1,5 @@
+
+
 #### Hochschule Rhein-Waal<br>RTES2018
 # Intrusion Detection System Using Motion Sensing and LoRaWAN
 
@@ -44,16 +46,19 @@ A typical PIR motion sensor board consists of the following main components:
 -	A pyroelectric sensor
 -	An IC for amplification and outputting of the sensed signal
 
-PIR stands for passive-infrared. “Passive” means that the pyroelectric sensor does not need current to function. “Infrared” means that the sensor works by detecting heat in the form of infrared radiation which is invisible to the human eye. The human body radiates at a wavelength of about 9.4 micrometers (L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013) which lies within the infrared range.<br>
-A pyroelectric sensor is made of a crystalline material that produces electric charges when a change in infrared radiation is detected (Glolab Corporation 2015) . This change can be caused by a warm body either approaching the sensor or moving away from the sensor which subsequently caused a charge displacement. This charge displacement can easily be realized into a voltage pulse by use of a gate resistor.<br>
+PIR stands for passive-infrared. “Passive” means that the pyroelectric sensor does not need current to function. “Infrared” means that the sensor works by detecting heat in the form of infrared radiation which is invisible to the human eye. The human body radiates at a wavelength of about 9.4 micrometers (L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013) which lies within the infrared range.
+
+A pyroelectric sensor is made of a crystalline material that produces electric charges when a change in infrared radiation is detected (Glolab Corporation 2015) . This change can be caused by a warm body either approaching the sensor or moving away from the sensor which subsequently caused a charge displacement. This charge displacement can easily be realized into a voltage pulse by use of a gate resistor.
+
 A pyroelectric sensor with two sensing elements connected in series with opposite polarities are less susceptible to noise as it produces two opposite pulses when there is a change in infrared radiation.
 
-| ![PIR Sensor](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/MEMS_accelerator.jpg) | 
+|![Dual PIR](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/dual_pir.png)|
 |:--:| 
 | *Dual-element PIR Sensor Output Signal (Yun & Lee 2014)* |
 
 The generated pulses from the PIR sensor is fed into an IC. The IC consists of an amplifier for amplification of the input signal and a comparator to properly produces an output a digital signal whose amplitude lies within a desired range (0 for LOW and 3.3V for HIGH). This output signal from the IC can be fed into a microcontroller. Unlike the PIR sensor which is passive, the IC does consume current as it is an active component.
-| ![PIR Sensor](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/pir_block_diagram.jpg) | 
+
+|![PIR Sensor](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/pir_block_diagram.jpg) | 
 |:--:| 
 | *PIR Sensor Block Diagram (RobotsCraft 2016)* |
 
@@ -61,6 +66,7 @@ The PIR motion sensor board used in this project includes a BSS0001 PIR motion d
 
 #### Motion Sensing Using MEMS-based Accelerometers
 A MEMS (microelectromechanical systems) – based accelerometer is a capacitive-type sensor that consists of two capacitive plates: one plate is fixed onto to a solid plane on a substrate and the other plate is moveable with a known mass (proof mass) that is connected to a spring and can move in response to an applied acceleration (Excelitas Technologies 2015). When the movable capacitive plate moves, the capacitance between its fingers and the fixed plate’s fingers is changed and thus an amplifying circuit can be connected to these two plates to realize a voltage.
+
 |![MEMS accelerator](https://github.com/v2h/RTES2018/blob/master/Figures/sensor/MEMS_accelerator.jpg)|
 |:--:|
 |MEMS Accelerator Structure (Rob O'Reilly, Alex Khenkin, Kieran Harney 2009)| 
@@ -246,6 +252,7 @@ To reduce power consumption, all peripherals should be put into low-power mode w
 - The PIR motion sensor sends a logic HIGH signal to PIN 16 of the microcontroller when motion is detected, causing the microcontroller to wake up via the configured GPIO level interrupt.
 - The MPU-9250's interrupt pin turns active (LOW) whenever a motion exceeds the predefined acceleration threshold in any direction, causing the microcontroller to wake up via the configured GPIO edge-triggered interrupt.
 If motion is detected by either sensor, the microcontroller board will transmit a packet to the TTN cloud service.
+
 #### Viewing Transmited Data on the TTN Console
 Data can be viewed on the TTN `Application Overview` page by clicking on the `Data` tab. The custom-payload encoder in section [link] ensures that the data is displayed correctly. A value of `1` from any sensor means that motion is detected.
 [figure]
