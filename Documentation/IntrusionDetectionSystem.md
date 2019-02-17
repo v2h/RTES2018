@@ -13,7 +13,7 @@
   * [1.4 Document Outline](#14-document-outline)
 - [2 System Overview](#2-system-overview)
 - [3 Technology Review](#3-technology-review)
-  * [3.1Motion Sensing](#31motion-sensing)
+  * [3.1 Motion Sensing](#31-motion-sensing)
     + [3.1.1 Motion Sensing Using PIR Sensors](#311-motion-sensing-using-pir-sensors)
     + [3.1.2 Motion Sensing Using MEMS-based Accelerometers](#312-motion-sensing-using-mems-based-accelerometers)
   * [3.2 LoRaWAN](#32-lorawan)
@@ -99,7 +99,7 @@ As seen in the figure above, the implemented system consists of three components
 Note that what was not covered in this proof-of-concept is the TTN gateway whose job is to forward data from the sensor nodes to the TTN cloud service.
 
 ## 3 Technology Review
-### 3.1Motion Sensing
+### 3.1 Motion Sensing
 #### 3.1.1 Motion Sensing Using PIR Sensors
 A typical PIR motion sensor board consists of the following main components:
 -	A pyroelectric sensor
