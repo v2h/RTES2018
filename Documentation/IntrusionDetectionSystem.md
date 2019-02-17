@@ -261,10 +261,18 @@ Data can be viewed on the TTN `Application Overview` page by clicking on the `Da
 [This Python program](https://github.com/v2h/RTES2018/blob/master/Python/MQTT_TTN.py)  can be run to fetch uplink messages transmitted from the sensor node to the TTN server and unwrangle the data to get the payload as a JSON string. Note that the program is set to timeout after 60 seconds by default with `time.sleep(60)`.
 
 ## References
+
 L. Viktor Tóth, Sarolta Zahorecz, Csaba Kiss 2013, Infrared Astronomy, Eötvös Loránd University. Available from: http://elte.prompt.hu/sites/default/files/tananyagok/InfraredAstronomy/ [17 February 2019].
+
 Landesdatenbank NRW 2018, Bevölkerungsstand Basis Zensus 2011 - Gemeinden - Stichtag, Landesdatenbank NRW. Available from: https://www.landesdatenbank.nrw.de/ldbnrw/online/data;jsessionid=83F19BA3D1A9966574F82915963BC679.ldb1?operation=abruftabelleBearbeiten&levelindex=2&levelid=1550382014540&auswahloperation=abruftabelleAuspraegungAuswaehlen&auswahlverzeichnis=ordnungsstruktur&auswahlziel=werteabruf&selectionname=12410-00ir&auswahltext=&nummer=2&variable=2&name=DLAND&werteabruf=Werteabruf [17 February 2019].
+
 LoRa Alliance 2015, A technical overview of LoRa and LoRaWAN, LoRa Alliance. Available from: https://lora-alliance.org/sites/default/files/2018-04/what-is-lorawan.pdf [17 February 2019].
+
 Mekki, K, Bajic, E, Chaxel, F & Meyer, F 2018, 'A comparative study of LPWAN technologies for large-scale IoT deployment', ICT Express.
+
 Rob O'Reilly, Alex Khenkin, Kieran Harney 2009, Using MEMS Accelerometers as Acoustic Pickups in Musical Instruments. Available from: https://www.analog.com/en/analog-dialogue/articles/mems-accelerometers-as-acoustic-pickups.html [17 February 2019].
+
 RobotsCraft 2016, Introduction to PIR Sensor and Integrating It With Arduino. Available from: https://cdn.instructables.com/FO1/75G7/IW6POC25/FO175G7IW6POC25.LARGE.jpg [17 February 2019].
+
 Yun, J & Lee, S-S 2014, 'Human movement detection and identification using pyroelectric infrared sensors', Sensors (Basel, Switzerland), vol. 14, no. 5, pp. 8057–8081.
+
