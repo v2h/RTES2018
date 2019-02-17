@@ -153,13 +153,21 @@ PlatformIO is an extension for Visual Studio Code that is capable of building co
 #### 4.1.1 Installing Visual Studio Code
 Visual Studio Code can be downloaded [here](https://code.visualstudio.com/). As mentioned above, Visual Studio Code is platform-agnostic and can be installed on either a Windows, Mac or Linux machine.
 #### 4.1.2 Installing Visual Studio Code Extensions (IntelliSense, PlatformIO)
-The `Extensions` panel can be viewed by clicking on the *Extension button* on the left sidebar.
-[figure]
-More options can be displayed by clicking on the `...` button at the top of the `Extension` panel.
-[figure]
-If `C/C++ IntelliSense` does not show up in the list of Installed Extensions, search for it by typing `C/C++ IntelliSense` in the Extension Search Bar and install it.
-[figure]
-Type `PlatformIO` in the Extension Search Bar to search for PlatformIO and install the extension.
+
+- The `Extensions` panel can be viewed by clicking on the *Extension button* on the left sidebar.
+
+	|![extension button](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/vs_extension_button.png)|
+	|:--:|
+
+- More options can be displayed by clicking on the `...` button at the top of the `Extension` panel.
+
+	|![dot button](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/vs_extension_threedot_button.png)|
+	|:--:|
+
+- If `C/C++ IntelliSense` does not show up in the list of Installed Extensions, search for it by typing `C/C++ IntelliSense` in the Extension Search Bar and install it.
+
+- Type `PlatformIO` in the Extension Search Bar to search for PlatformIO and install the extension.
+
 ### 4.2 TTN Application Setup
 
 #### 4.2.1 Setting up a new TTN Application
@@ -228,17 +236,31 @@ Note that:
 ### 4.4 Loading the Sensor Node Embedded Software
 
  - **Download or clone the whole project repository [here](https://github.com/v2h/RTES2018).**
- - In Visual Studio Code, Click on the PlatformIO icon on the left sidebar to bring up the PlatformIO homepage. [figure]
+ - In Visual Studio Code, Click on the PlatformIO icon on the left sidebar to bring up the PlatformIO homepage.  
+
+|![pio home](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/platformIO_homepage.png)|
+|:--:|
+
  -  Within the PlatformIO homepage, click `Open Project` to load a the project into Visual Studio Code.
  - Navigate to `.../PlatformIO/FeatherMO_LoRa_IMU_PIR_TTN` and click `Open "FeatherM0_LoRa_IMU_PIR_TTN` to load the project
- - From the Explorer panel, click on `platformio.ini` and make sure the settings match the figure below. [figure]
- - Make sure the following library names are present in the `.piolibdeps` folder. This can also be checked via the PlatformIO page:
- [Boder Flight Systems MPU9250](https://github.com/bolderflight/MPU9250) by Brian Taylor
- [MCCI LoRaWAN LMIC](https://github.com/mcci-catena/arduino-lmic) by Matthis Kooijman et. al.
- [RTCZero](https://github.com/arduino-libraries/RTCZero) by Arduino.
- SparkFun MPU-9250 Digital Motion Processing (DMP) Arduino Library](https://github.com/sparkfun/MPU-9250) by SparkFun Electronics.
- [Figure]
+ - From the Explorer panel, click on `platformio.ini` and make sure the settings match the figure below. 
+
+|![ini settings](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/ini_settings.png)|
+|:--:|
+
+ - Make sure the following library names are present in the `.piolibdeps` folder: <br>
+ [Boder Flight Systems MPU9250](https://github.com/bolderflight/MPU9250) by Brian Taylor<br>
+ [MCCI LoRaWAN LMIC](https://github.com/mcci-catena/arduino-lmic) by Matthis Kooijman et. al.<br>
+ [RTCZero](https://github.com/arduino-libraries/RTCZero) by Arduino.<br>
+ [SparkFun MPU-9250 Digital Motion Processing (DMP) Arduino Library](https://github.com/sparkfun/MPU-9250) by SparkFun Electronics.<br>
+
+|![libaries](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/libraries.png)|
+|:--:|
+
+ This can also be checked via the PlatformIO page:
  
+![libraries 2](https://github.com/v2h/RTES2018/blob/master/Figures/visual_studio_code/libraries2.png)
+
  As the board configuration and libraries are bundled into the PlatformIO project, there is no need to install them again. However, it should be noted that all board configurations and libraries are available on the PlatformIO homepage, which can be accessed by clicking on the `PlatformIO` icon on the left sidebar.
  
 #### 4.4.1 LoRaWAN Frequency Band and TTN Authentication Setup
